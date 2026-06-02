@@ -1,0 +1,65 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+.venv/
+venv/
+ai-service/venv/
+ai-service/.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist-info/
+
+datasets/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.pt
+*.onnx
+
+# Large model files (auto-downloaded on first run)
+ai-service/yolov8n.pt
+ai-service/models/**/*.pt
+ai-service/models/**/*.onnx
+
+# Build artifacts
+frontend/dist/
+backend/build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+.project
+.classpath
+
+# OS
+.DS_Store
+desktop.ini
+Thumbs.db
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+coverage/
+htmlcov/
+
+# Misc
+.cache/
+.tmp/
+*.bak
+tmp/
