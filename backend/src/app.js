@@ -47,11 +47,18 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ── Routes ────────────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Purplle AI Backend is running'
+  });
+});
 app.use('/api/events', eventRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/cameras', cameraRoutes);
 app.use('/api/occupancy', occupancyRoutes);
 app.use('/health', healthRoutes);
+
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
