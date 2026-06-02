@@ -33,5 +33,5 @@ export const api = {
   getCameras:     () => request('/cameras'),
 
   // Health
-  health:         () => fetch('/health').then(r => r.json()),
+  health:         () => fetch(`${BASE}/health`).then(r => r.json()),
 }
