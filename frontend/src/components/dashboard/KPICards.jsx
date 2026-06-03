@@ -29,22 +29,27 @@ export default function KPICards() {
   const { data: kpi, loading } = useApi(() => api.getKPI(), [], { refreshInterval: 30_000 })
 
   const occ = liveOccupancy || kpi
-  const pct = occ ? Math.round((occ.current_count / (occ.threshold || 50)) * 100) : 0
+  const currentCount = occ?.current_count ?? occ?.current_occupancy ?? 0
+  const threshold = occ?.threshold ?? occ?.occupancy_threshold ?? 50
+  const pct = occ?.occupancy_pct ?? (threshold ? Math.round((currentCount / threshold) * 100) : 0)
+  const todayEntries = occ?.today_entries ?? kpi?.today_entries
+  const todayExits = occ?.today_exits ?? kpi?.today_exits
+  const peakCount = occ?.peak_today?.count ?? kpi?.peak_today?.count
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
         icon="👥"
         label="Current Occupancy"
-        value={occ?.current_count ?? (loading ? '…' : '—')}
-        sub={`${pct}% of capacity (${occ?.threshold ?? 50} max)`}
+        value={occ ? currentCount : (loading ? '…' : '—')}
+        sub={`${pct}% of capacity (${threshold} max)`}
         color={pct >= 90 ? 'red' : pct >= 70 ? 'amber' : 'green'}
       />
       <StatCard
         icon="🚪"
         label="Today's Entries"
-        value={occ?.today_entries ?? kpi?.today_entries ?? (loading ? '…' : '—')}
-        sub={`Exits: ${occ?.today_exits ?? kpi?.today_exits ?? '—'}`}
+        value={todayEntries != null ? todayEntries : (loading ? '…' : '—')}
+        sub={`Exits: ${todayExits != null ? todayExits : '—'}`}
         color="purple"
       />
       <StatCard

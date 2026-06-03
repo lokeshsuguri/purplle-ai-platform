@@ -22,12 +22,13 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function FootfallChart({ hours = 24 }) {
   const { data, loading } = useApi(() => api.getFootfall(hours), [hours], { refreshInterval: 60_000 })
+  const rows = Array.isArray(data) ? data : []
 
-  const chartData = (data || []).map(d => ({
-    time: format(new Date(d.hour), 'HH:mm'),
-    Entries: d.entries,
-    Exits: d.exits,
-    Occupancy: d.peak_occupancy,
+  const chartData = rows.map(d => ({
+    time: d.hour ? format(new Date(d.hour), 'HH:mm') : '—',
+    Entries: d.entries || 0,
+    Exits: d.exits || 0,
+    Occupancy: d.peak_occupancy || 0,
   }))
 
   return (
