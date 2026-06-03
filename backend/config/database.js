@@ -2,7 +2,15 @@ const mongoose = require('mongoose');
 const logger = require('../src/utils/logger');
 
 const connectDB = async () => {
-  const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/purplle_ai';
+  // Support multiple common environment variable names for deployed platforms
+  const uriSource = process.env.MONGO_URI ? 'MONGO_URI'
+    : process.env.MONGODB_URI ? 'MONGODB_URI'
+    : process.env.DATABASE_URL ? 'DATABASE_URL'
+    : 'FALLBACK_LOCALHOST';
+
+  const uri = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DATABASE_URL || 'mongodb://localhost:27017/purplle_ai';
+
+  logger.info(`Connecting to MongoDB using source: ${uriSource}`);
 
   try {
     await mongoose.connect(uri, {
