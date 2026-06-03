@@ -278,9 +278,13 @@ class EventService {
     if (is_alert !== undefined) filter.is_alert = is_alert === 'true';
     if (since) filter.timestamp = { $gte: new Date(since) };
 
+    // Validate `limit` coming from query params — protect against NaN / invalid values
+    const parsed = Number.parseInt(limit, 10);
+    const safeLimit = Number.isInteger(parsed) && parsed > 0 ? parsed : 50;
+
     return Event.find(filter)
       .sort({ timestamp: -1 })
-      .limit(parseInt(limit))
+      .limit(safeLimit)
       .lean();
   }
 
