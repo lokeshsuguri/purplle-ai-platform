@@ -27,8 +27,18 @@ connectDB();
 // ── Security middleware ───────────────────────────────────────────────────────
 app.use(helmet());
 app.use(compression());
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,https://purplle-ai-platform-git-main-lokeswara-suguris-projects.vercel.app,https://purplle-ai-platform.onrender.com')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
 app.use(cors({
-  origin: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,https://purplle-ai-platform.onrender.com').split(','),
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
+  },
   credentials: true,
 }));
 

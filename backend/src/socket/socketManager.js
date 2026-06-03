@@ -10,10 +10,21 @@ const logger = require('../utils/logger');
 
 let io = null;
 
+const allowedSocketOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,https://purplle-ai-platform-git-main-lokeswara-suguris-projects.vercel.app,https://purplle-ai-platform.onrender.com')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
 const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,https://purplle-ai-platform.onrender.com').split(','),
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (allowedSocketOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+          return callback(null, true);
+        }
+        return callback(new Error(`Origin ${origin} not allowed by Socket.IO CORS`));
+      },
       methods: ['GET', 'POST'],
     },
     transports: ['websocket', 'polling'],
