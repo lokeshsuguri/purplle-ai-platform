@@ -127,7 +127,7 @@ function generateDwellEvents(count) {
       timestamp: getRandomTimestampLast24h(),
       person: {
         track_id: Math.floor(Math.random() * 10000),
-        bbox: getRandomBbox(),
+        // bbox is optional for DWELL_TIME — omit it to avoid validation issues
       },
       dwell: {
         duration_seconds: Math.floor(Math.random() * 300) + 10, // 10–310 seconds
@@ -171,8 +171,15 @@ function generateQueueEvents(count) {
  * Main seed function
  */
 async function seedDemoEvents() {
-  const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/purplle_ai';
+  // Support multiple MongoDB env var names
+  const uriSource = process.env.MONGO_URI ? 'MONGO_URI'
+    : process.env.MONGODB_URI ? 'MONGODB_URI'
+    : process.env.DATABASE_URL ? 'DATABASE_URL'
+    : 'FALLBACK_LOCALHOST';
 
+  const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DATABASE_URL || 'mongodb://localhost:27017/purplle_ai';
+
+  console.log(`📌 MongoDB URI source: ${uriSource}`);
   console.log(`📌 Connecting to MongoDB: ${mongoUri}`);
 
   try {
@@ -182,7 +189,13 @@ async function seedDemoEvents() {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
+    
+    // Extract and print database name
+    const dbName = mongoose.connection.name || 'purplle_ai';
+    const dbHost = mongoose.connection.host || 'unknown';
     console.log('✅ Connected to MongoDB');
+    console.log(`   Database: ${dbName}`);
+    console.log(`   Host: ${dbHost}`);
 
     // Generate all events
     const entryEvents = generateEntryEvents(20);
@@ -208,27 +221,27 @@ async function seedDemoEvents() {
     const inserted = await Event.insertMany(allEvents);
     console.log(`✅ Successfully inserted ${inserted.length} events`);
 
+    // Verify insertion by checking each event type
+    console.log(`\n🔍 Verifying insertion...`);
+    const entryCount = await Event.countDocuments({ event_type: 'ENTRY' });
+    const exitCount = await Event.countDocuments({ event_type: 'EXIT' });
+    const dwellCount = await Event.countDocuments({ event_type: 'DWELL_TIME' });
+    const queueCount = await Event.countDocuments({ event_type: 'QUEUE_ALERT' });
+    const totalCount = await Event.countDocuments({});
+
+    console.log(`   ENTRY: ${entryCount} (expected: 20)`);
+    console.log(`   EXIT: ${exitCount} (expected: 15)`);
+    console.log(`   DWELL_TIME: ${dwellCount} (expected: 10)`);
+    console.log(`   QUEUE_ALERT: ${queueCount} (expected: 5)`);
+    console.log(`   TOTAL: ${totalCount} (expected: 50)`);
+
+    if (totalCount === 50) {
+      console.log(`\n✅ All 50 events inserted successfully!`);
+    }
+
     // Print sample event
     console.log(`\n📋 Sample event (first ENTRY):`);
     console.log(JSON.stringify(entryEvents[0], null, 2));
-
-    // Print stats
-    const eventCounts = await Event.aggregate([
-      {
-        $group: {
-          _id: '$event_type',
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { _id: 1 },
-      },
-    ]);
-
-    console.log(`\n📈 Event counts in database:`);
-    eventCounts.forEach(({ _id, count }) => {
-      console.log(`   ${_id}: ${count}`);
-    });
 
     console.log(`\n✨ Demo events seeded successfully!`);
   } catch (err) {
