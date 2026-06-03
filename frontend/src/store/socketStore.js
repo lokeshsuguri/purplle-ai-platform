@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { io } from 'socket.io-client'
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || ''
+const SOCKET_URL = import.meta.env.VITE_API_URL || 'https://purplle-ai-platform.onrender.com'
 
 export const useSocketStore = create((set, get) => ({
   socket: null,

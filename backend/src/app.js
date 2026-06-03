@@ -28,7 +28,7 @@ connectDB();
 app.use(helmet());
 app.use(compression());
 app.use(cors({
-  origin: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(','),
+  origin: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,https://purplle-ai-platform.onrender.com').split(','),
   credentials: true,
 }));
 

@@ -13,7 +13,7 @@ let io = null;
 const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(','),
+      origin: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,https://purplle-ai-platform.onrender.com').split(','),
       methods: ['GET', 'POST'],
     },
     transports: ['websocket', 'polling'],

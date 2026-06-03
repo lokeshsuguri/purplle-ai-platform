@@ -34,7 +34,10 @@ const EventSchema = new mongoose.Schema(
       track_id: { type: Number },             // ByteTrack assigned ID
       bbox: {                                  // [x1, y1, x2, y2] normalised 0-1
         type: [Number],
-        validate: v => !v || v.length === 4,
+        validate: {
+          validator: v => v === undefined || v === null || (Array.isArray(v) && v.length === 4 && v.every(num => typeof num === 'number' && !Number.isNaN(num))),
+          message: 'person.bbox must be an array of 4 numbers',
+        },
       },
       confidence: { type: Number, min: 0, max: 1 },
     },

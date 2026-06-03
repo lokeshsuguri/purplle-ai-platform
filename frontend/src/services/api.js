@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || ''
+const BASE = import.meta.env.VITE_API_URL || 'https://purplle-ai-platform.onrender.com'
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}/api${path}`, {

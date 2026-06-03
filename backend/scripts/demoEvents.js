@@ -53,6 +53,14 @@ function getRandomBbox() {
   return [x1, y1, x2, y2];
 }
 
+function getValidBbox() {
+  const bbox = getRandomBbox();
+  if (!Array.isArray(bbox) || bbox.length !== 4 || bbox.some(v => typeof v !== 'number' || Number.isNaN(v))) {
+    return [0.1, 0.2, 0.3, 0.4];
+  }
+  return bbox;
+}
+
 /**
  * Generate ENTRY events
  */
@@ -65,7 +73,7 @@ function generateEntryEvents(count) {
       timestamp: getRandomTimestampLast24h(),
       person: {
         track_id: Math.floor(Math.random() * 10000),
-        bbox: getRandomBbox(),
+        bbox: getValidBbox(),
         confidence: 0.85 + Math.random() * 0.15,
       },
       store_snapshot: {
@@ -96,7 +104,7 @@ function generateExitEvents(count) {
       timestamp: getRandomTimestampLast24h(),
       person: {
         track_id: Math.floor(Math.random() * 10000),
-        bbox: getRandomBbox(),
+        bbox: getValidBbox(),
         confidence: 0.80 + Math.random() * 0.20,
       },
       store_snapshot: {
@@ -167,12 +175,12 @@ function normalizeEventBboxes(events) {
   const invalidEvents = [];
 
   for (const event of events) {
-    if (!event.person || event.person.bbox === undefined || event.person.bbox === null) {
+    if (!event.person || typeof event.person !== 'object') {
       continue;
     }
 
     const bbox = event.person.bbox;
-    const invalid = !Array.isArray(bbox) || bbox.length !== 4 || bbox.some(v => typeof v !== 'number' || Number.isNaN(v));
+    const invalid = bbox === undefined || bbox === null || !Array.isArray(bbox) || bbox.length !== 4 || bbox.some(v => typeof v !== 'number' || Number.isNaN(v));
     if (invalid) {
       invalidEvents.push(event);
       event.person.bbox = [0.1, 0.2, 0.3, 0.4];
@@ -183,6 +191,33 @@ function normalizeEventBboxes(events) {
     console.error('Invalid bbox event found before insertMany():');
     console.error(JSON.stringify(invalidEvents[0], null, 2));
     console.error(`Invalid bbox event count: ${invalidEvents.length}`);
+  }
+
+  return invalidEvents.length;
+}
+
+function validateEventDocs(events) {
+  const invalidEvents = [];
+
+  for (const event of events) {
+    const doc = new Event(event);
+    const err = doc.validateSync();
+    if (err) {
+      invalidEvents.push({
+        event,
+        error: err.message,
+      });
+      if (!event.person || typeof event.person !== 'object') {
+        event.person = {};
+      }
+      event.person.bbox = [0.1, 0.2, 0.3, 0.4];
+    }
+  }
+
+  if (invalidEvents.length > 0) {
+    console.error('Invalid event found during Event.validateSync():');
+    console.error(JSON.stringify(invalidEvents[0], null, 2));
+    console.error(`Invalid event count: ${invalidEvents.length}`);
   }
 
   return invalidEvents.length;
@@ -240,6 +275,11 @@ async function seedDemoEvents() {
     const invalidCount = normalizeEventBboxes(allEvents);
     if (invalidCount === 0) {
       console.log('✅ No invalid bbox values detected before insert');
+    }
+
+    const invalidValidateCount = validateEventDocs(allEvents);
+    if (invalidValidateCount === 0) {
+      console.log('✅ All events pass Event.validateSync() before insert');
     }
 
     // Insert events into database
