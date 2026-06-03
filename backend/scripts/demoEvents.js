@@ -125,10 +125,6 @@ function generateDwellEvents(count) {
       event_type: 'DWELL_TIME',
       camera_id: getRandomCamera(),
       timestamp: getRandomTimestampLast24h(),
-      person: {
-        track_id: Math.floor(Math.random() * 10000),
-        // bbox is optional for DWELL_TIME — omit it to avoid validation issues
-      },
       dwell: {
         duration_seconds: Math.floor(Math.random() * 300) + 10, // 10–310 seconds
         zone: ZONES[Math.floor(Math.random() * ZONES.length)],
@@ -165,6 +161,31 @@ function generateQueueEvents(count) {
     });
   }
   return events;
+}
+
+function normalizeEventBboxes(events) {
+  const invalidEvents = [];
+
+  for (const event of events) {
+    if (!event.person || event.person.bbox === undefined || event.person.bbox === null) {
+      continue;
+    }
+
+    const bbox = event.person.bbox;
+    const invalid = !Array.isArray(bbox) || bbox.length !== 4 || bbox.some(v => typeof v !== 'number' || Number.isNaN(v));
+    if (invalid) {
+      invalidEvents.push(event);
+      event.person.bbox = [0.1, 0.2, 0.3, 0.4];
+    }
+  }
+
+  if (invalidEvents.length > 0) {
+    console.error('Invalid bbox event found before insertMany():');
+    console.error(JSON.stringify(invalidEvents[0], null, 2));
+    console.error(`Invalid bbox event count: ${invalidEvents.length}`);
+  }
+
+  return invalidEvents.length;
 }
 
 /**
@@ -215,6 +236,11 @@ async function seedDemoEvents() {
     console.log(`   • EXIT:       15 events`);
     console.log(`   • DWELL_TIME: 10 events`);
     console.log(`   • QUEUE_ALERT: 5 events`);
+
+    const invalidCount = normalizeEventBboxes(allEvents);
+    if (invalidCount === 0) {
+      console.log('✅ No invalid bbox values detected before insert');
+    }
 
     // Insert events into database
     console.log(`\n⏳ Inserting events into database...`);
