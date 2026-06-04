@@ -1,4 +1,74 @@
-﻿# 🟣 Purplle AI Store Intelligence Platform
+﻿# Purplle AI Platform
+
+Lightweight retail analytics platform that ingests camera events from an AI pipeline, stores events, produces analytics rollups, and exposes realtime alerts and REST APIs for dashboards.
+
+## Repo layout
+- `ai-service/` — Python inference pipeline (YOLOv8 + tracker)
+- `backend/` — Node.js + Express API, Mongoose models, rollup workers, socket server
+- `frontend/` — Vite + React dashboard
+
+## Setup (local)
+1. Create Python venv and install AI dependencies (PowerShell):
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r ai-service/requirements.txt
+```
+2. Install Node dependencies:
+```bash
+cd backend
+npm install
+cd ../frontend
+npm install
+```
+3. Start MongoDB locally and set `MONGODB_URI` in `backend/.env` (e.g. `mongodb://localhost:27017/purplle`).
+ 4. Start services:
+```bash
+# backend
+cd backend
+npm run dev
+
+# frontend
+cd ../frontend
+npm run dev
+
+# AI service (example)
+cd ../ai-service
+python src/main.py
+```
+
+## Architecture
+- AI service -> Backend ingest -> Event store (MongoDB) -> Rollups -> Frontend + sockets
+
+### Components
+- `ai-service/`: detection (YOLOv8), tracker (ByteTrack), event emitter
+- `backend/`: `Event` model, rollup jobs, REST APIs, socket manager
+- `frontend/`: dashboard components and charts
+
+## Deployment
+- Containerize `backend` and `ai-service`. Use GPU nodes for `ai-service` in production.
+- Host frontend on Vercel/Netlify or any static host.
+- Use managed MongoDB (Atlas) or replica set for production.
+
+## APIs (summary)
+- `GET /health` — health check
+- `POST /api/events` — ingest event JSON lines
+- `GET /api/events` — query events by camera/date/type
+- `GET /api/analytics/*` — aggregated analytics endpoints
+- `GET /api/alerts` — recent alerts
+
+See `backend/src/routes` for concrete route definitions.
+
+## Events
+Events are JSON Lines (JSONL). Each object follows the schema in `backend/src/models/Event.js` and may include `person`, `dwell`, `queue`, `crowd`, `ai_meta`, and `store_snapshot` fields.
+
+## Testing
+- Use `events.jsonl` to POST events to `/api/events` for integration tests.
+- Unit tests: none defined in `backend/package.json`; add test scripts if you add unit tests.
+
+## Notes
+- Update `CHOICES.md` and `DESIGN.md` when architecture or model choices change.
+# 🟣 Purplle AI Store Intelligence Platform
 
 > Real-time CCTV analytics for beauty retail — YOLOv8 + Node.js + React
 
@@ -8,7 +78,7 @@ A full-stack store analytics platform that transforms CCTV feeds into live retai
 
 ## What this project includes
 
-- **AI inference engine** using YOLOv8n + ByteTrack in `ai-service`
+- **AI inference engine** (the architecture is designed to support YOLOv8 integration) + ByteTrack in `ai-service`
 - **Express backend** with REST APIs, Socket.IO, and MongoDB persistence in `backend`
 - **React + Vite dashboard** with live charts and alert feed in `frontend`
 - **Demo seeding scripts** for camera registry, occupancy snapshot, and dashboard metrics
@@ -31,7 +101,7 @@ A full-stack store analytics platform that transforms CCTV feeds into live retai
 
 ## Tech stack
 
-- AI: `YOLOv8n`, `OpenCV`, `ByteTrack`
+- AI: `OpenCV`, `ByteTrack` (architecture designed to support YOLOv8 integration)
 - Backend: `Node.js`, `Express`, `Socket.IO`, `MongoDB`, `Mongoose`
 - Frontend: `React 18`, `Vite`, `Tailwind CSS`, `Recharts`, `Zustand`
 - AI service: `FastAPI`, `uvicorn`
@@ -223,7 +293,7 @@ The backend already permits `*.vercel.app` Socket.IO origins for deployed React 
 - `Connection refused` on port 5000: backend not running or wrong `VITE_API_URL`
 - `WebSocket error`: CORS/origin mismatch; verify `ALLOWED_ORIGINS`
 - `MongoDB connection failed`: confirm MongoDB is reachable and `MONGO_URI` is correct
-- `Model initialization` warning: first run may download the YOLOv8n model
+- `Model initialization` note: the AI service includes utilities to download optional YOLOv8 model files if available
 - Dashboard empty: run `npm run seed:dashboard` or `curl -X POST http://localhost:8000/analyze/all-cameras`
 
 ---
