@@ -25,7 +25,7 @@ export default function OccupancyGauge() {
   return (
     <div className="card flex flex-col items-center">
       <div className="stat-label mb-3">Store Occupancy</div>
-      <svg viewBox="0 0 180 100" className="w-48 h-28">
+      <svg viewBox="0 0 180 100" className="w-full max-w-[280px] h-auto">
         <path d={`M ${startX} ${startY} A ${R} ${R} 0 0 1 ${endX} ${endY}`}
           fill="none" stroke="#2a2040" strokeWidth="14" strokeLinecap="round" />
         <path d={`M ${startX} ${startY} A ${R} ${R} 0 0 1 ${endX} ${endY}`}

@@ -6,8 +6,8 @@ export default function Header() {
   const now = new Date()
 
   return (
-    <header className="h-14 bg-surface-secondary border-b border-surface-border flex items-center justify-between px-6">
-      <div className="flex items-center gap-3">
+    <header className="bg-surface-secondary border-b border-surface-border flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-0">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <h1 className="text-sm font-semibold text-white">Store Intelligence Platform</h1>
         <span className="text-xs text-purple-400/50">
           {now.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}

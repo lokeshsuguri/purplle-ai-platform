@@ -34,7 +34,7 @@ export default function AlertsPage() {
         <div className="space-y-2">
           <div className="stat-label">Active — Requires Action</div>
           {crowdAlerts.map(a => (
-            <div key={a.id} className="card border-red-500/30 bg-red-900/10 flex items-center justify-between">
+            <div key={a.id} className="card border-red-500/30 bg-red-900/10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-semibold text-red-300">🚨 CROWD ALERT · {a.severity}</div>
                 <div className="text-xs text-red-300/70 mt-0.5">

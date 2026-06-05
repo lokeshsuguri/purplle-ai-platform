@@ -18,10 +18,10 @@ export default function CamerasPage() {
               { id:'CAM4', role:'Billing',    tasks:'Queue depth · Wait time est.' },
               { id:'CAM5', role:'Operations', tasks:'Queue depth · Staff utilisation' },
             ].map(c => (
-              <div key={c.id} className="flex gap-3 py-2 border-b border-surface-border last:border-0">
+              <div key={c.id} className="flex flex-col gap-2 py-2 border-b border-surface-border last:border-0 sm:flex-row sm:items-center">
                 <span className="font-mono text-brand-400 w-12">{c.id}</span>
-                <span className="text-white w-28">{c.role}</span>
-                <span className="text-purple-300/60">{c.tasks}</span>
+                <span className="text-white min-w-0 sm:w-28 truncate">{c.role}</span>
+                <span className="text-purple-300/60 flex-1 min-w-0 truncate">{c.tasks}</span>
               </div>
             ))}
           </div>

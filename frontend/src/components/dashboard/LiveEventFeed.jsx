@@ -24,12 +24,14 @@ function EventRow({ event }) {
     : `Track #${event.payload?.person?.track_id ?? '—'}`
 
   return (
-    <div className={clsx('flex items-center gap-3 px-3 py-2 rounded-lg text-xs animate-fade-in', meta.bg)}>
-      <span>{meta.icon}</span>
-      <span className={clsx('font-semibold w-24 shrink-0', meta.color)}>{event.event_type}</span>
-      <span className="text-purple-300/60 w-12 shrink-0">{event.camera_id}</span>
-      <span className="text-purple-200/80 flex-1 truncate">{detail}</span>
-      <span className="text-purple-400/50 shrink-0">{format(ts, 'HH:mm:ss')}</span>
+    <div className={clsx('flex flex-col gap-2 px-3 py-2 rounded-lg text-xs animate-fade-in sm:flex-row sm:items-center sm:gap-3', meta.bg)}>
+      <div className="flex flex-wrap items-center gap-2 min-w-0">
+        <span>{meta.icon}</span>
+        <span className={clsx('font-semibold truncate', meta.color)}>{event.event_type}</span>
+        <span className="text-purple-300/60">{event.camera_id}</span>
+      </div>
+      <span className="text-purple-200/80 flex-1 min-w-0 truncate">{detail}</span>
+      <span className="text-purple-400/50">{format(ts, 'HH:mm:ss')}</span>
     </div>
   )
 }

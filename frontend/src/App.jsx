@@ -17,11 +17,11 @@ export default function App() {
   }, [])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-surface-primary">
+    <div className="flex min-h-screen flex-col lg:flex-row overflow-hidden bg-surface-primary">
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />

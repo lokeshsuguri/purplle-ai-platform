@@ -59,7 +59,7 @@ export default function CameraGrid() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="card-sm animate-pulse">
             <div className="aspect-video bg-surface-tertiary rounded-lg mb-3" />
@@ -79,7 +79,7 @@ export default function CameraGrid() {
   ]
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {cams.map(cam => (
         <CameraCard key={cam.camera_id} camera={cam} lastEvent={lastEvents[cam.camera_id]} />
       ))}
